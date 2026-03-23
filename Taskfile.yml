@@ -4,21 +4,32 @@ version: '3'
 tasks:
 
   default:
-    desc: List all available tasks.
+    desc: Show all available tasks
     cmds:
       - task --list
 
-  dev:
-    desc: Start the dev stack. Builds deps on first run, skips if already running.
+  up:
+    desc: Start frontend + backend + mongo (docker compose)
     cmds:
-      - bash scripts/dev.sh
+      - bash ./bin/compose/up-local.sh
 
-  stop:
-    desc: Stop and remove all containers. MongoDB volume is preserved.
+  down:
+    desc: Stop containers (keeps volumes)
     cmds:
-      - bash scripts/stop.sh
+      - bash ./bin/compose/down-local.sh
 
-  rebuild:
-    desc: Force-rebuild everything from scratch (no cache), then restart.
+  clean:
+    desc: Stop containers and remove volumes too (deletes Mongo history)
     cmds:
-      - bash scripts/rebuild.sh
+      - bash ./bin/compose/down-local.sh -v
+
+  restart:
+    desc: Restart running containers
+    cmds:
+      - bash ./bin/compose/restart-local.sh
+
+  ps:
+    desc: Show docker compose status
+    cmds:
+      - bash ./bin/compose/ps-local.sh
+
