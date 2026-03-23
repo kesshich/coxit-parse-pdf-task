@@ -10,9 +10,11 @@ class PDFSettings(SettingsABC):
     CHUNK_SIZE: int = 2000   # characters per chunk
     CHUNK_OVERLAP: int = 200  # overlap between consecutive chunks
 
-    # "fast"   — pdfminer only, no system deps (local dev / Windows)
-    # "hi_res" — OCR + table detection, requires Poppler & Tesseract (Docker)
-    PDF_STRATEGY: str = "fast"
+    # Unstructured PDF parsing strategy:
+    # "auto"   — Unstructured decides per-page (OCR when needed, fast otherwise) [recommended]
+    # "fast"   — direct text extraction only, no OCR
+    # "hi_res" — full OCR + table detection, requires Poppler & Tesseract
+    PDF_STRATEGY: str = "auto"
 
 
 settings = PDFSettings()

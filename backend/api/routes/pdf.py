@@ -1,29 +1,16 @@
-import asyncio
+from typing import Annotated
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends
 
-from backend.db.mongo.repositories.repository import save_history
+from backend.api.dependecies.pdf_analyze import create_pdf_analyze
 from backend.schemas.pdf import AnalyzeResponse
-from backend.llm.llm_service import analyze_chunks
-from backend.services.pdf_service import load_and_split
+from backend.use_cases.pdf_analyzer_use_case import PdfAnalyzerUseCase
 
 router = APIRouter(prefix="/pdf")
 
 
 @router.post("/analyze", response_model=AnalyzeResponse)
 async def analyze(
-    file: UploadFile = File(..., description="PDF file to analyze (max 50 MB, 100 pages)"),
+    pdf_analyzer_use_case: Annotated[PdfAnalyzerUseCase, Depends(create_pdf_analyze)],
 ):
-    if not file.filename or not file.filename.lower().endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="Only PDF files are accepted.")
-
-    chunks = await asyncio.to_thread(load_and_split, file)
-    result = await analyze_chunks(chunks)
-
-    record_id = await save_history(result=result, filename=file.filename)
-
-    return AnalyzeResponse(
-        id=record_id,
-        filename=file.filename,
-        result=result,
-    )
+    return await pdf_analyzer_use_case.generate_pdf_summary()
