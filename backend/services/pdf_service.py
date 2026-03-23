@@ -2,7 +2,7 @@ import os
 import tempfile
 
 from fastapi import HTTPException, UploadFile
-from langchain_community.document_loaders import UnstructuredPDFLoader
+from langchain_community.document_loaders import PyPDFLoader, UnstructuredPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from backend.services.settings import settings
@@ -10,7 +10,6 @@ from backend.services.settings import settings
 
 def load_and_split(file: UploadFile) -> list[str]:
     """Load a PDF upload, validate it, and split it into overlapping text chunks.
-
     Args:
         file: The raw ``UploadFile`` received from the FastAPI route.
 
@@ -25,10 +24,10 @@ def load_and_split(file: UploadFile) -> list[str]:
 
     # Validate file size
     size_mb = len(content) / (1024 * 1024)
-    if size_mb > settings.max_file_size_mb:
+    if size_mb > settings.MAX_FILE_SIZE_MB:
         raise HTTPException(
             status_code=400,
-            detail=f"File size ({size_mb:.1f} MB) exceeds the {settings.max_file_size_mb} MB limit.",
+            detail=f"File size ({size_mb:.1f} MB) exceeds the {settings.MAX_FILE_SIZE_MB} MB limit.",
         )
 
     # UnstructuredPDFLoader requires a real file path, so write to a temp file
@@ -38,27 +37,35 @@ def load_and_split(file: UploadFile) -> list[str]:
         tmp_path = tmp.name
 
     try:
-        # strategy="hi_res" enables OCR for scanned pages and proper table detection
-        loader = UnstructuredPDFLoader(tmp_path, mode="elements", strategy="hi_res")
+        if settings.PDF_STRATEGY == "hi_res":
+            loader = UnstructuredPDFLoader(tmp_path, mode="elements", strategy="hi_res")
+        else:
+            loader = PyPDFLoader(tmp_path)
+
         docs = loader.load()
 
         if not docs:
             raise HTTPException(
                 status_code=422,
-                detail="Could not extract any content from the PDF.",
+                detail="Could not extract any text from the PDF. "
+                       "If the file is scanned or image-based, use the hi_res strategy.",
             )
 
-        # Validate page count via element metadata
-        max_page = max((doc.metadata.get("page_number") or 0) for doc in docs)
-        if max_page > settings.max_pages:
+        # PyPDFLoader uses "page" (0-indexed), UnstructuredPDFLoader uses "page_number" (1-indexed)
+        if settings.PDF_STRATEGY == "hi_res":
+            max_page = max((doc.metadata.get("page_number") or 0) for doc in docs)
+        else:
+            max_page = max((doc.metadata.get("page") or 0) for doc in docs) + 1
+
+        if max_page > settings.MAX_PAGES:
             raise HTTPException(
                 status_code=400,
-                detail=f"PDF exceeds the {settings.max_pages} page limit.",
+                detail=f"PDF exceeds the {settings.MAX_PAGES} page limit.",
             )
 
         splitter = RecursiveCharacterTextSplitter(
-            chunk_size=settings.chunk_size,
-            chunk_overlap=settings.chunk_overlap,
+            chunk_size=settings.CHUNK_SIZE,
+            chunk_overlap=settings.CHUNK_OVERLAP,
         )
         return [chunk.page_content for chunk in splitter.split_documents(docs)]
 

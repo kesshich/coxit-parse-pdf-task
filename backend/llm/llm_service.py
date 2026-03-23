@@ -1,3 +1,5 @@
+from functools import cache
+
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableConfig
@@ -5,6 +7,7 @@ from langchain_core.runnables import RunnableConfig
 from backend.llm.client import LLMFactory
 from backend.llm.prompts import CHUNK_EXTRACTION_PROMPT, REDUCE_PROMPT
 
+# Prompts are pure data — safe to build at import time
 _map_prompt = ChatPromptTemplate.from_messages([
     ("system", CHUNK_EXTRACTION_PROMPT),
     ("human", "{context}"),
@@ -15,7 +18,14 @@ _reduce_prompt = ChatPromptTemplate.from_messages([
     ("human", "{context}"),
 ])
 
-_llm = LLMFactory.create()
+
+@cache
+def _get_chains() -> tuple:
+    """Build and cache the LLM chains on first request.
+
+    """
+    llm = LLMFactory.create()
+    return _map_prompt | llm | StrOutputParser(), _reduce_prompt | llm | StrOutputParser()
 
 
 async def analyze_chunks(chunks: list[str]) -> str:
@@ -26,15 +36,12 @@ async def analyze_chunks(chunks: list[str]) -> str:
     Returns:
         A single coherent summary string.
     """
+    map_chain, reduce_chain = _get_chains()
+
     # Map phase (parallel)
-    inputs = [{"context": chunk} for chunk in chunks]
-
-    map_chain = _map_prompt | _llm | StrOutputParser()
-    reduce_chain = _reduce_prompt | _llm | StrOutputParser()
-
     map_results: list[str] = await map_chain.abatch(
-        inputs,
-        config=RunnableConfig(max_concurrency=5),  # stay within typical API rate limits
+        [{"context": chunk} for chunk in chunks],
+        config=RunnableConfig(max_concurrency=5),
     )
 
     # Reduce phase

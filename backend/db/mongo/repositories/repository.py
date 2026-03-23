@@ -13,8 +13,8 @@ async def save_history(filename: str, result: str) -> str:
     return str(inserted.inserted_id)
 
 
-async def get_all_history() -> list[dict]:
-    cursor = get_db().history.find().sort("created_at", -1)
+async def get_latest_summaries() -> list[dict]:
+    cursor = get_db().history.find().sort("created_at", -1).limit(5)
     return [_serialize(doc) async for doc in cursor]
 
 
