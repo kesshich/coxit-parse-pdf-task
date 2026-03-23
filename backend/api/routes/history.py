@@ -6,6 +6,6 @@ from backend.schemas.history import HistoryRecord
 router = APIRouter(prefix="/history")
 
 
-@router.get("/", response_model=list[HistoryRecord])
+@router.get("", response_model=list[HistoryRecord])
 async def list_history():
     return await get_latest_summaries()

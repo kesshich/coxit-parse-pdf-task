@@ -4,7 +4,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableConfig
 
-from backend.llm.client import LLMFactory
+from backend.llm.factory import LLMFactory
 from backend.llm.prompts import CHUNK_EXTRACTION_PROMPT, REDUCE_PROMPT
 
 # Prompts are pure data — safe to build at import time
