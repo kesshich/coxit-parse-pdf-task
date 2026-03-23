@@ -13,9 +13,7 @@ class PdfAnalyzerUseCase:
         self.tmp_file_path = tmp_file_path
 
     async def generate_pdf_summary(self) -> AnalyzeResponse:
-        # load_and_split is CPU-bound (Unstructured PDF parsing) — run in a thread
-        # so the event loop stays free for other requests during processing
-        chunks = await asyncio.to_thread(load_and_split, self.tmp_file_path)
+        chunks = load_and_split(self.tmp_file_path)
         summary = await analyze_chunks(chunks)
         record_id = await save_history(summary=summary, filename=self.original_filename)
 
