@@ -1,0 +1,23 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Secrets & local config
+.env
+.env.*
+
+# Git & IDE
+.git/
+.gitignore
+.idea/
+.vscode/
+
+# Misc
+*.md
+
