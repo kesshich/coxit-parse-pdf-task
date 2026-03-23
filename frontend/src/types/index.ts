@@ -1,13 +1,13 @@
 export interface AnalyzeResponse {
   id: string
   filename: string
-  result: string
+  summary: string
 }
 
 export interface HistoryRecord {
   id: string
   filename: string
-  result: string
+  summary: string
   created_at: string
 }
 

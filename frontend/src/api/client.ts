@@ -19,7 +19,7 @@ export async function analyzePdf(file: File): Promise<AnalyzeResponse> {
 }
 
 export async function getHistory(): Promise<HistoryRecord[]> {
-  const res = await fetch(`${BASE_URL}/history/`)
+  const res = await fetch(`${BASE_URL}/history`)
   return handleResponse<HistoryRecord[]>(res)
 }
 

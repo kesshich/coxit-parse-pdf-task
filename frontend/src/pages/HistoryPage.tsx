@@ -50,7 +50,7 @@ export default function HistoryPage() {
 
         <ul className="history-list">
           {records.map(r => {
-            const long = r.result.length > PREVIEW_LENGTH
+            const long = r.summary.length > PREVIEW_LENGTH
             const isOpen = expanded.has(r.id)
             return (
               <li key={r.id} className="history-card">
@@ -59,7 +59,7 @@ export default function HistoryPage() {
                   <span className="file-meta">{formatDate(r.created_at)}</span>
                 </div>
                 <p className="history-result">
-                  {isOpen || !long ? r.result : r.result.slice(0, PREVIEW_LENGTH) + '…'}
+                  {isOpen || !long ? r.summary : r.summary.slice(0, PREVIEW_LENGTH) + '…'}
                 </p>
                 {long && (
                   <button className="btn-text" onClick={() => toggle(r.id)}>

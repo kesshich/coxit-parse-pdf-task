@@ -1,11 +1,6 @@
 # https://taskfile.dev
 version: '3'
 
-vars:
-  COMPOSE_FILE: docker-compose.yml
-  DEPS_IMAGE: pdf-parser-backend-deps:latest
-  DEPS_DOCKERFILE: backend/docker/backend.deps.dockerfile
-
 tasks:
 
   default:
@@ -13,32 +8,17 @@ tasks:
     cmds:
       - task --list
 
-  # ── Docker ────────────────────────────────────────────────────────────────
-
   dev:
-    desc: >
-      Start the full stack (backend + frontend + MongoDB).
-      Builds the deps image automatically on first run — subsequent starts are fast.
+    desc: Start the dev stack. Builds deps on first run, skips if already running.
     cmds:
       - bash scripts/dev.sh
 
   stop:
-    desc: >
-      Stop and remove all running containers.
-      MongoDB data volume is kept, so history is preserved between restarts.
+    desc: Stop and remove all containers. MongoDB volume is preserved.
     cmds:
       - bash scripts/stop.sh
 
   rebuild:
-    desc: >
-      Force-rebuild EVERYTHING from scratch with no Docker cache, then restart.
-      Run this whenever pyproject.toml or system-level packages change.
+    desc: Force-rebuild everything from scratch (no cache), then restart.
     cmds:
       - bash scripts/rebuild.sh
-
-  build:deps:
-    desc: >
-      Build only the heavy deps image (system packages + pip install).
-      Skips this if the image already exists — use rebuild to force a fresh build.
-    cmds:
-      - docker build -f {{.DEPS_DOCKERFILE}} -t {{.DEPS_IMAGE}} .

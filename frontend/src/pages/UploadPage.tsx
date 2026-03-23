@@ -97,7 +97,7 @@ export default function UploadPage() {
             <div className="result-header">
               <span className="result-filename">📄 {result.filename}</span>
             </div>
-            <div className="result-body">{result.result}</div>
+            <div className="result-body">{result.summary}</div>
           </div>
         )}
       </main>
