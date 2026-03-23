@@ -17,7 +17,8 @@ A web application that accepts a PDF file (up to 50 MB, 100 pages), extracts and
 
 - [Docker](https://docs.docker.com/get-docker/) and Docker Compose
 - An OpenAI API key
-- A Unix-like shell (bash, Git Bash, WSL) to run the scripts
+- [Task](https://taskfile.dev/#/installation) (optional but recommended)
+- A Unix-like shell (bash, Git Bash, WSL) to run scripts
 
 ---
 
@@ -62,26 +63,24 @@ CORS_ORIGINS=["http://localhost:5173"]
 
 ## Running with Docker
 
-### Using scripts
-
-All scripts are in `scripts/` and must be run from the project root.
-
-```bash
-./scripts/dev.sh       # Start all services (builds deps image on first run)
-./scripts/stop.sh      # Stop containers — MongoDB volume is preserved
-./scripts/rebuild.sh   # Force full rebuild with no Docker cache
-```
-
 ### Using Taskfile (recommended)
 
-If you have [Task](https://taskfile.dev) installed:
+```bash
+task up        # Build and start all services (frontend + backend + mongo)
+task down      # Stop containers — MongoDB volume is preserved
+task restart   # Restart running containers
+task logs      # Stream logs from all containers
+task ps        # Show container status
+task clean     # Stop containers and remove volumes (deletes Mongo history)
+```
+
+### Using Docker Compose directly
 
 ```bash
-task dev        # Start all services
-task stop       # Stop all containers
-task rebuild    # Force full rebuild
-task logs       # Stream logs from all containers
-task build:deps # Rebuild only the heavy deps image
+docker compose up -d           # Start all services
+docker compose down            # Stop containers
+docker compose logs -f         # Stream logs
+docker compose build frontend  # Rebuild frontend image after code changes
 ```
 
 ### Services
@@ -95,17 +94,27 @@ task build:deps # Rebuild only the heavy deps image
 
 ---
 
+## Development workflow
+
+| Changed | What to do |
+|---|---|
+| Any backend `.py` file | Nothing — uvicorn reloads automatically |
+| Frontend `.tsx` / `.ts` / `.css` | `docker compose build frontend && docker compose up -d frontend` |
+| Backend dependencies (`requirements.txt`) | `task down` → rebuild backend image → `task up` |
+
+---
+
 ## PDF Processing
 
 The parsing strategy is controlled by the `PDF_STRATEGY` environment variable:
 
-| Strategy | Description | Requirements |
-|---|---|---|
-| `auto` | Unstructured decides per page — OCR only where needed **(recommended)** | Poppler, Tesseract |
-| `fast` | Direct text extraction only, no OCR | None |
-| `hi_res` | Full OCR + table detection on every page | Poppler, Tesseract |
+| Strategy | Description |
+|---|---|
+| `auto` | Unstructured decides per page — OCR only where needed **(recommended)** |
+| `fast` | Direct text extraction only, no OCR |
+| `hi_res` | Full OCR + table detection on every page |
 
-> Poppler and Tesseract are pre-installed inside the Docker container. For local development on Windows without those tools, use `PDF_STRATEGY=fast`.
+> Poppler and Tesseract are pre-installed inside the Docker container.
 
 ### Processing pipeline
 
@@ -144,7 +153,7 @@ Upload a PDF for analysis and get back a summary.
 {
   "id": "665f1a2b3c4d5e6f7a8b9c0d",
   "filename": "document.pdf",
-  "result": "The document covers..."
+  "summary": "The document covers..."
 }
 ```
 
@@ -169,9 +178,8 @@ Returns the most recent summaries (default: last 5, configurable via `HISTORY_LI
   {
     "id": "665f1a2b3c4d5e6f7a8b9c0d",
     "filename": "document.pdf",
-    "result": "The document covers...",
+    "summary": "The document covers...",
     "created_at": "2024-06-04T12:00:00Z"
   }
 ]
 ```
-
