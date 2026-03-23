@@ -100,7 +100,7 @@ docker compose build frontend  # Rebuild frontend image after code changes
 |---|---|
 | Any backend `.py` file | Nothing — uvicorn reloads automatically |
 | Frontend `.tsx` / `.ts` / `.css` | `docker compose build frontend && docker compose up -d frontend` |
-| Backend dependencies (`requirements.txt`) | `task down` → rebuild backend image → `task up` |
+| Backend dependencies (`pyproject.toml`) | `task down` → rebuild backend image → `task up` |
 
 ---
 
