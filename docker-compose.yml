@@ -2,14 +2,11 @@ services:
   backend:
     build:
       context: .
-      dockerfile: backend/Dockerfile
+      dockerfile: backend/docker/backend.dockerfile
     ports:
       - "8000:8000"
     env_file:
       - backend/.env
-    environment:
-      - PDF_STRATEGY=hi_res
-      - MONGO_URI=mongodb://mongo:27017
     depends_on:
       - mongo
     volumes:
