@@ -8,6 +8,11 @@ vars:
 
 tasks:
 
+  default:
+    desc: List all available tasks.
+    cmds:
+      - task --list
+
   # ── Docker ────────────────────────────────────────────────────────────────
 
   dev:
