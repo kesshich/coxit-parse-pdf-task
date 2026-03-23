@@ -43,6 +43,6 @@ def _to_record(doc: dict) -> HistoryRecord:
     return HistoryRecord.model_validate({
         "id": str(doc["_id"]),
         "filename": doc["filename"],
-        "result": doc["result"],
+        "summary": doc["summary"],
         "created_at": doc["created_at"],
     })

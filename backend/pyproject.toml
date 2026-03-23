@@ -43,8 +43,7 @@ testpaths = ["tests"]
 Repository = "https://github.com/kesshich/coxit-test-task"
 
 [tool.hatch.build.targets.wheel]
-
-packages = []
+packages = ["backend"]
 
 [tool.ruff]
 exclude = [

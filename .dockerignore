@@ -20,4 +20,5 @@ frontend/dist/
 
 # Misc
 *.md
+!README.md
 

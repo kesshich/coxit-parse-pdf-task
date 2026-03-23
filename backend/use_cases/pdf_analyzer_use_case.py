@@ -17,10 +17,10 @@ class PdfAnalyzerUseCase:
         # so the event loop stays free for other requests during processing
         chunks = await asyncio.to_thread(load_and_split, self.tmp_file_path)
         summary = await analyze_chunks(chunks)
-        record_id = await save_history(result=summary, filename=self.original_filename)
+        record_id = await save_history(summary=summary, filename=self.original_filename)
 
         return AnalyzeResponse(
             id=record_id,
             filename=self.original_filename,
-            result=summary,
+            summary=summary,
         )
