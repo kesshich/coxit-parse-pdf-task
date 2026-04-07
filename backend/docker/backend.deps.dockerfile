@@ -4,7 +4,7 @@ ENV PYTHONPATH=/app
 WORKDIR /app
 
 # ── System packages required by unstructured / OCR ───────────────────────
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     tesseract-ocr \
     poppler-utils \
     libgl1 \

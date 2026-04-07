@@ -2,7 +2,9 @@ name: coxit-pdf-parser
 
 services:
   backend:
-    image: pdf-parser-backend:latest
+    build:
+      context: .
+      dockerfile: ./backend/docker/backend.dockerfile
     container_name: coxit-backend
     restart: unless-stopped
     ports:

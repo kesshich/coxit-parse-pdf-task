@@ -9,27 +9,28 @@ tasks:
       - task --list
 
   up:
-    desc: Start frontend + backend + mongo (docker compose)
+    desc: Start all services — builds deps image if missing, then builds app image + starts containers
     cmds:
       - bash ./bin/compose/up-local.sh
 
   down:
-    desc: Stop containers (keeps volumes)
+    desc: Stop containers (keeps volumes and deps image intact)
     cmds:
       - bash ./bin/compose/down-local.sh
 
   clean:
-    desc: Stop containers and remove volumes too (deletes Mongo history)
+    desc: Stop containers and remove volumes (deletes Mongo history)
     cmds:
       - bash ./bin/compose/down-local.sh -v
 
+  build-deps:
+    desc: (Re)build the backend deps image — run only when pyproject.toml changes
+    cmds:
+      - bash ./bin/compose/build-deps.sh
+
   restart:
-    desc: Restart running containers
+    desc: Restart running containers without rebuilding
     cmds:
       - bash ./bin/compose/restart-local.sh
 
-  ps:
-    desc: Show docker compose status
-    cmds:
-      - bash ./bin/compose/ps-local.sh
 

@@ -1,4 +1,4 @@
-FROM pdf-parser-deps:latest
+FROM pdf-parser-backend-deps:latest
 
 WORKDIR /app
 

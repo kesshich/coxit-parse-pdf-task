@@ -1,6 +1,6 @@
 import uvicorn
 
-from backend.main import create_app
+from backend.app_factory import create_app
 
 if __name__ == "__main__":
     app = create_app()

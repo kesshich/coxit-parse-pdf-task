@@ -1,5 +1,3 @@
-import asyncio
-
 from backend.db.mongo.repositories.repository import save_history
 from backend.llm.llm_service import analyze_chunks
 from backend.schemas.pdf import AnalyzeResponse
